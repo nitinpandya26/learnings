@@ -1,8 +1,9 @@
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
-DB_PATH = Path("expense_manager.db")
+DB_PATH = Path(os.getenv("EXPENSE_MANAGER_DB_PATH", "expense_manager.db"))
 
 
 @contextmanager
