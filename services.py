@@ -31,8 +31,6 @@ ASSET_CLASS_KEYWORDS = {
     "pf": "Provident Fund",
 }
 
-TABLES = ["accounts", "categories", "subcategories", "transactions", "assets"]
-
 
 def query_df(query: str, params: tuple = ()) -> pd.DataFrame:
     with get_conn() as conn:
@@ -97,7 +95,6 @@ def add_asset(
     linked_txn_id: int | None,
     notes: str = "",
 ) -> None:
-def add_asset(asset_name: str, asset_class: str, acquisition_date: str, acquisition_value: float, linked_txn_id: int | None, notes: str = "") -> None:
     with get_conn() as conn:
         conn.execute(
             """
@@ -136,7 +133,6 @@ def compute_kpis(df: pd.DataFrame) -> dict:
         "net": float(net),
         "savings_rate": float(savings_rate),
     }
-    return {"income": float(income), "expense": float(expense), "net": float(net), "savings_rate": float(savings_rate)}
 
 
 def period_change(df: pd.DataFrame, freq: str = "M") -> pd.DataFrame:
@@ -144,7 +140,6 @@ def period_change(df: pd.DataFrame, freq: str = "M") -> pd.DataFrame:
         return pd.DataFrame(
             columns=["period", "income", "expense", "net", "expense_change_pct"]
         )
-        return pd.DataFrame(columns=["period", "income", "expense", "net", "expense_change_pct"])
     d = df.copy()
     d["txn_date"] = pd.to_datetime(d["txn_date"])
     d["period"] = d["txn_date"].dt.to_period(freq).dt.to_timestamp()
@@ -153,7 +148,6 @@ def period_change(df: pd.DataFrame, freq: str = "M") -> pd.DataFrame:
         d.pivot_table(
             index="period", columns="txn_type", values="amount", aggfunc="sum", fill_value=0
         )
-        d.pivot_table(index="period", columns="txn_type", values="amount", aggfunc="sum", fill_value=0)
         .reset_index()
         .rename_axis(None, axis=1)
     )
@@ -177,7 +171,6 @@ def expense_forecast(df: pd.DataFrame, periods: int = 3) -> pd.DataFrame:
     return pd.DataFrame(
         {"period": future_periods, "forecast_expense": np.maximum(future_y, 0)}
     )
-    return pd.DataFrame({"period": future_periods, "forecast_expense": np.maximum(future_y, 0)})
 
 
 def export_excel() -> bytes:
@@ -210,10 +203,6 @@ def _infer_asset_class(*values: str) -> str | None:
 def _import_table_format(xls: dict[str, pd.DataFrame]) -> tuple[int, list[str]]:
     inserted = 0
     issues: list[str] = []
-def import_excel(uploaded) -> tuple[int, list[str]]:
-    inserted = 0
-    issues: list[str] = []
-    xls = pd.read_excel(uploaded, sheet_name=None)
     with get_conn() as conn:
         for table in TABLES:
             if table not in xls:
