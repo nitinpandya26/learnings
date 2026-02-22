@@ -12,35 +12,18 @@ Modern Streamlit-based personal finance app for:
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # Windows PowerShell: .venv\Scripts\Activate.ps1
-A Streamlit-powered personal finance manager with:
-- Income and expense tracking across **cash**, **bank**, and **credit cards**.
-- Customizable categories and subcategories for both income and expenses.
-- Asset creation tracking directly from expenses (Mutual Funds, Gold, Computer, FD, PF, etc.).
-- Dashboard analytics (mix, account-wise views, trend lines, MoM/WoW/YoY views, and linear expense projections).
-- Excel import and export for full dataset portability.
-
-## Run locally
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
 Then open `http://localhost:8501`.
 
-The app creates `expense_manager.db` automatically.
+The app creates `expense_manager.db` automatically. You can override the DB location with `EXPENSE_MANAGER_DB_PATH=/path/to/file.db`.
 
 ## Supported Excel import formats
 
 ### 1) Native app export format
 Workbook can include sheets:
-The app creates `expense_manager.db` automatically.
-
-## Excel import/export format
-
-Export generates workbook sheets:
 - `accounts`
 - `categories`
 - `subcategories`
@@ -89,4 +72,3 @@ Export generates an Excel workbook with normalized application sheets:
 - `subcategories`
 - `transactions`
 - `assets`
-Import supports the same sheet names. If `id` columns exist they are ignored.
