@@ -1,205 +1,74 @@
-# Expense Manager 2.0 (Radical Redesign)
+# Expense Manager Pro (Python + Frontend)
 
-This repository is now rebuilt as a modern full-stack app:
+Modern Streamlit-based personal finance app for:
+- Income and expense tracking across **cash**, **bank**, and **credit cards**.
+- Customizable categories and subcategories.
+- Asset creation tracking from expenses (Mutual Funds, Gold, Computer, FD, PF, etc.).
+- Dashboard analytics (category mix, account flow, WoW/MoM/YoY trends, and projections).
+- Excel import and export.
 
-- **Frontend**: Next.js 14 + Tailwind + shadcn-style UI + TanStack Table + Recharts
-- **Backend**: FastAPI + SQLAlchemy 2 + Alembic
-- **Database**: PostgreSQL
-- **Optional**: Redis (add only when profiling shows bottlenecks)
-
----
-
-## Project structure
-
-- `backend/` FastAPI service, models, Alembic migrations
-- `frontend/` Next.js app with dashboard, table, and chart components
-- `docker-compose.yml` local PostgreSQL
-
----
-
-## Detailed VS Code testing guide
-
-## 1) Prerequisites
-
-Install these first:
-
-- VS Code
-- Python 3.11+
-- Node.js 20+
-- Docker Desktop (recommended for PostgreSQL)
-
-Install VS Code extensions:
-
-- Python
-- Pylance
-- ESLint
-- Tailwind CSS IntelliSense
-
----
-
-## 2) Open workspace
-
-1. Open VS Code.
-2. `File -> Open Folder` and select this repo folder.
-3. Open terminal (`Ctrl+``).
-
----
-
-## 3) Start PostgreSQL
-
-From repo root:
+## Run locally (VS Code friendly)
 
 ```bash
-docker compose up -d postgres
-```
-
-Verify DB is running:
-
-```bash
-docker ps
-```
-
----
-
-## 4) Backend setup (FastAPI)
-
-```bash
-cd backend
 python -m venv .venv
-```
-
-Activate env:
-
-- **macOS/Linux**
-  ```bash
-  source .venv/bin/activate
-  ```
-- **Windows PowerShell**
-  ```powershell
-  .venv\Scripts\Activate.ps1
-  ```
-
-Install packages:
-
-```bash
+source .venv/bin/activate   # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+streamlit run app.py
 ```
 
-Create `.env` from example:
+Then open `http://localhost:8501`.
 
-```bash
-cp .env.example .env
-```
+The app creates `expense_manager.db` automatically. You can override the DB location with `EXPENSE_MANAGER_DB_PATH=/path/to/file.db`.
 
-Run migrations:
+## Supported Excel import formats
 
-```bash
-alembic upgrade head
-```
+### 1) Native app export format
+Workbook can include sheets:
+- `accounts`
+- `categories`
+- `subcategories`
+- `transactions`
+- `assets`
 
-Start API:
+### 2) Custom ledger format (single sheet)
+The import now supports your ledger columns, including:
+- `account`
+- `category`
+- `currency`
+- `amount`
+- `ref_currency_amount`
+- `type` (Income / Expenses)
+- `payment_type`
+- `payment_type_local`
+- `note`
+- `date`
+- `gps_latitude`
+- `gps_longitude`
+- `gps_accuracy_in_meters`
+- `warranty_in_month`
+- `transfer`
+- `payee`
+- `labels`
+- `envelope_id`
+- `custom_category`
 
-```bash
-uvicorn app.main:app --reload --port 8000
-```
+How mapping works:
+- `account` -> account name (auto-creates account if missing).
+- `type` -> transaction type (`Income` => income, `Expenses` => expense).
+- `amount` -> absolute value is stored.
+- `category` -> category (auto-creates by transaction type).
+- `labels` -> subcategory (falls back to `General`).
+- `payment_type` -> payment mode.
+- `payee` -> counterparty.
+- `note` -> notes.
+- `date` -> transaction date.
+- Asset-like categories/notes (Mutual, Gold, Computer, FD, PF, etc.) auto-create asset records for expense rows.
 
-Test API in browser:
+## Export
 
-- Swagger: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
-
----
-
-## 5) Frontend setup (Next.js)
-
-In a **new terminal**:
-
-```bash
-cd frontend
-npm install
-```
-
-Set API base URL:
-
-```bash
-echo "NEXT_PUBLIC_API_BASE=http://localhost:8000" > .env.local
-```
-
-Run frontend:
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
----
-
-## 6) Functional test checklist in VS Code
-
-1. Open `http://localhost:8000/docs`
-2. Create 1 account via `POST /accounts`
-3. Create 1 category via `POST /categories`
-4. Add 2 transactions via `POST /transactions` (one income, one expense)
-5. Call `GET /dashboard/kpis` and verify totals
-6. Refresh `http://localhost:3000`
-7. Verify:
-   - KPI cards render
-   - Recharts bar chart shows Income/Expense
-   - TanStack table displays transactions
-
----
-
-## 7) Ledger import test (your Excel format)
-
-Use endpoint `POST /imports/ledger` from Swagger:
-
-- Upload your xlsx with columns such as:
-  - `account`, `category`, `amount`, `type`, `payment_type`, `date`
-  - Optional: `note`, `payee`, etc.
-
-Expected behavior:
-
-- Missing accounts/categories are auto-created.
-- Expense and income rows are inserted into `transactions`.
-- Import summary returns inserted row count.
-
----
-
-## 8) Common troubleshooting
-
-- **`alembic: command not found`**
-  - Ensure backend `.venv` is active.
-
-- **DB connection refused**
-  - Check Docker PostgreSQL container is running.
-
-- **Frontend cannot reach API**
-  - Verify `.env.local` has `NEXT_PUBLIC_API_BASE=http://localhost:8000`
-  - Restart `npm run dev`.
-
-- **CORS issue**
-  - Update `EXPENSE_CORS_ORIGINS` in backend `.env`.
-
----
-
-## 9) Useful dev commands
-
-Backend:
-
-```bash
-python -m py_compile app/main.py app/models.py app/crud.py app/schemas.py
-```
-
-Frontend:
-
-```bash
-npm run build
-```
-
-Stop DB:
-
-```bash
-docker compose down
-```
-
+Export generates an Excel workbook with normalized application sheets:
+- `accounts`
+- `categories`
+- `subcategories`
+- `transactions`
+- `assets`
