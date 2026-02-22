@@ -5,3 +5,4 @@ export async function fetchJson<T>(path: string): Promise<T> {
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();
 }
+console.log("API BASE =", API)
